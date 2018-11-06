@@ -1,0 +1,43 @@
+本案例要求先快速搭建好一台Subversion服务器，并测试该版本控制软件：
+创建版本库
+导入初始化数据
+检出数据至用户本地副本
+对本地副本进行增删改查等操作
+使用YUM安装subversion软件，使用svn客户端工具连接svnserver服务器并测试版本控制软件
+骤一：安装Subversion服务器
+web1
+1)YUM安装subversion软件
+#yum -y install subversion
+#rpm -q subversion
+2)创建版本库
+#mkdir /var/svn/
+#svnadmin create /var/svn/project
+#ls /var/svn/project/
+3)本地导入初始化数据
+#cd /usr/lib/systemcd/system/
+#svn import. file:///var/svn/project/ -m"Init Data"
+4）修改配置文件，创建账户与密码
+所有配置文件，要求顶头写，开头不要有空格。
+#vim /var/svn/project/conf/svnserve.conf
+anon-access = none
+//19行，匿名无任何权限
+auth-access = write
+//20行，有效账户可写
+password-db = passwd
+//27行，密码文件
+authz-db = authz
+//34行，ACL访问控制列表文件
+#vim /var/svn/project/conf/passwd
+[users]
+harry = 123456
+//用户名和密码
+tom = 123456
+//用户名和密码
+#vim /var/svn/project/conf/authz
+[/]                                //定义ACL访问控制
+harry = rw                        //用户对项目根路径可读可写
+tom = rw
+5)启动服务
+#svnserve -d -r /var/svn/project
+#netstat -nutlp | grep svnserve
+备注：启动服务也可以使用svnserve -d启动，但客户端访问时需要指定绝对路径（svn://服务器IP/var/svn/project）。
